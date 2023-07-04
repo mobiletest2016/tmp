@@ -1,0 +1,121 @@
+test 
+
+
+/*
+K inputs, N top collections
+Time complexity O(KlogN)
+
+Space O(K)
+*/
+
+
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+public class Solution {
+    static class FileData {
+    String name, collectionName;
+    int size;
+    
+        public FileData(String name, String collectionName, int size) {
+            this.name = name;
+            this.collectionName = collectionName;
+            this.size = size;
+        }
+    }
+
+    static class CollectionData implements Comparable<CollectionData> {
+        String collectionName;
+        long size;
+        
+        public CollectionData(String collectionName, long size) {
+            this.collectionName = collectionName;
+            this.size = size;
+        }
+        
+        public boolean equals(Object o) {
+            CollectionData other = (CollectionData) o;
+            if (collectionName == other.collectionName)
+                return true;
+            return false;
+        }
+        
+        public int compareTo(CollectionData data) {
+            return Long.compare(size, data.size);
+        }
+    }
+
+    static class TopData {
+        public long totalFileSize;
+        public List<String> topCollections;
+    }
+    
+    public static void main(String[] args) {
+        /*
+        file1.txt (size: 100)
+        file2.txt (size: 200) in collection "collection1"
+        file3.txt (size: 200) in collection "collection1"
+        file4.txt (size: 300) in collection "collection2"
+        file5.txt (size: 10)
+        */
+        
+        List<FileData> testData = new ArrayList<>();
+        testData.add(new FileData("file1.txt", null, 100));
+        testData.add(new FileData("file2.txt", "collection1", 200));
+        testData.add(new FileData("file4.txt", "collection2", 300));
+        testData.add(new FileData("file3.txt", "collection1", 200));
+        testData.add(new FileData("file5.txt", null, 10));
+        
+        TopData topData = Solution.getFilesMetaData(testData, 1);
+        System.out.println("Total file sizes: " + topData.totalFileSize + " Top colelctions: ");
+        for (String collectionName : topData.topCollections) {
+            System.out.print(collectionName + " ");
+        }
+    }
+    
+    
+    public static TopData getFilesMetaData(List<FileData> files, int topK) {
+        Map<String, Integer> map = new HashMap<>();
+        long totalFileSize = 0;
+        PriorityQueue<CollectionData> pq = new PriorityQueue<>(topK + 1);
+        
+        
+        for (FileData data : files) {
+            totalFileSize += data.size;
+            
+            if (data.collectionName != null) {
+                map.computeIfPresent(data.collectionName, (k, v) -> v + data.size);    
+                map.computeIfAbsent(data.collectionName, k -> data.size);
+                
+                CollectionData newData = new CollectionData(data.collectionName, map.get(data.collectionName));
+                
+                if (pq.contains(newData)) {
+                    pq.remove(newData);
+                    pq.add(newData);
+                } else {
+                    pq.add(newData);
+                }
+                
+                if (pq.size() > topK) {
+                    pq.remove();
+                }
+            }
+        }
+    
+        TopData data = new TopData();
+        data.totalFileSize = totalFileSize;
+        List<String> topCollections = new ArrayList<>();
+        
+        while (!pq.isEmpty()) {
+            CollectionData collectionData = pq.remove();
+            topCollections.add(collectionData.collectionName);
+        }
+        
+        data.topCollections = topCollections;
+        
+        return data;
+    }
+}
