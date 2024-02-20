@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Network</title>
+    <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style type="text/css">
+#mynetwork {
+  width: 1200px;
+  height: 800px;
+  border: 1px solid lightgray;
+}
+    </style>
+  </head>
+  <body>
+
+<div id="mynetwork"></div>
+<script>
+	var nodes = new vis.DataSet([
+  { id: 1, label: "Node 1" },
+  { id: 2, label: "Node 2" },
+  { id: 3, label: "Node 3", color: "grey" },
+  { id: 4, label: "Node 4" },
+  { id: 5, label: "Node 5" },
+]);
+
+var edges = new vis.DataSet([
+  { from: 1, to: 2, label: 'Edge 1 - 2', font: { align: "bottom" }},
+  { from: 2, to: 3, label: 'Edge 2 - 3', font: { align: "bottom" } },
+  { from: 3, to: 4, label: 'Edge 3 - 4' },
+  { from: 4, to: 5, label: 'Edge 4 - 5' },
+]);
+
+
+	var container = document.getElementById("mynetwork");
+var data = {
+  nodes: nodes,
+  edges: edges,
+};
+const options = {
+      nodes: {
+        scaling: {
+          min: 3,
+          max: 70
+        }
+      },
+      edges: {
+        width: 1,
+        color: {
+          color: 'gray',
+          highlight: 'black'
+        },
+      },
+      groups: {
+        authentic: { color: 'blue' },
+        inauthentic: { color: 'purple' },
+        parent: { color: 'black' }
+      },
+      layout: { improvedLayout: false },
+      physics: {
+        forceAtlas2Based: {
+          gravitationalConstant: -126,
+          springLength: 200,
+          springConstant: 0.01
+        },
+        maxVelocity: 50,
+        solver: "forceAtlas2Based",
+        timestep: 0.35,
+        stabilization: true
+      },
+      interaction: {
+        tooltipDelay: 200,
+        hideEdgesOnDrag: true,
+        hideEdgesOnZoom: true
+      }
+    };
+var network = new vis.Network(container, data, options);
+network.on('stabilized', () => {
+		console.log("stabilized")
+});
+
+	</script>
+  </body>
+</html>
